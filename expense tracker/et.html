@@ -1,0 +1,138 @@
+
+<head>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+</head>
+<body>
+    <div class="container">
+    <form id="expenseForm">
+    <label class="form-label">Choose expense amount:</label>
+    <input type="number" class="form-control" id="amount" />
+
+    <label class="form-label">Choose description:</label>
+    <input type="text" class="form-control" id="description" />
+
+    <label class="form-label">Choose a category:</label>
+    <select class="form-select" id="category">
+        <option>fuel</option>
+        <option>food</option>
+        <option>movie</option>
+        <option>electricity</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary" id="addBtn">
+        Add expenses
+    </button>
+</form>
+<ul id="list"></ul>
+    </div>
+    <script>
+        const form=document.getElementById('expenseForm');
+        const list=document.getElementById('list');
+        form.addEventListener('submit',function(e){
+            e.preventDefault();
+            const amount=document.getElementById('amount').value;
+            const description=document.getElementById('description').value;
+            const category=document.getElementById('category').value;
+            const userData={
+                amount,description,category
+            }
+            const usersList = JSON.parse(localStorage.getItem('usersList')) || [];
+            const editId = sessionStorage.getItem('editId');
+            if (editId) {
+            update(usersList, userData, editId);
+            const li = document.getElementById(editId);
+            li.firstChild.textContent = userData.amount + " " + userData.description + " " + userData.category;
+        
+        } else {
+            addData(usersList, userData);
+            reset();
+        }
+   
+        localStorage.setItem('usersList', JSON.stringify(usersList));
+        
+        })
+        // use this function to display user on screen
+    function display(userData) {
+        const ul = document.querySelector('ul');
+        const li = document.createElement('li');
+        li.id =userData.id ;
+        li.textContent = userData.amount + " " + userData.description + " " + userData.category;
+        
+        ul.appendChild(li);
+        const delbtn = document.createElement('button');
+        delbtn.textContent = 'Delete';
+        li.appendChild(delbtn);
+        delbtn.addEventListener('click', () => deleteData(userData.id, li));
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        li.appendChild(editBtn);
+        editBtn.addEventListener('click', () => editData(userData));
+
+    }
+
+    // use this function to add user details into local storage
+    function addData(usersList,userData) {
+        usersList.push(userData);
+        userData.id = Date.now();
+        display(userData);
+    }
+
+    window.onload = function() {
+        const usersList = JSON.parse(localStorage.getItem("usersList")) || [];
+        for(let i=0;i<usersList.length;i++){
+            display(usersList[i])
+        }
+    };
+
+     function deleteData(id,li) {
+        const usersList = JSON.parse(localStorage.getItem("usersList")) || [];
+        const newUsersList = [];
+        for (let i = 0; i < usersList.length; i++){
+            if (id !== usersList[i].id) {
+                newUsersList.push(usersList[i]);
+            }
+        }
+        localStorage.setItem("usersList", JSON.stringify(newUsersList));
+        li.remove();
+        reset();
+    }
+
+    function editData(userData) {
+        const amountInput = document.querySelector('#amount');
+        const descriptionInput = document.querySelector('#description');
+        const categoryInput = document.querySelector('#category');
+        amountInput.value = userData.amount;
+        descriptionInput.value = userData.description;
+        categoryInput.value = userData.category;
+        sessionStorage.setItem("editId", userData.id);
+        
+    }
+function update(usersList, userData, editId) {
+    for (let i = 0; i < usersList.length; i++) {
+        if (usersList[i].id == editId) {
+            usersList[i].amount = userData.amount;
+            usersList[i].description = userData.description;
+            usersList[i].category = userData.category;
+        }
+    }
+    sessionStorage.removeItem('editId')
+}
+
+function reset(){
+     const amountInput = document.querySelector('#amount');
+        const descriptionInput = document.querySelector('#description');
+        const categoryInput = document.querySelector('#category');
+        amountInput.value = "";
+        descriptionInput.value = "";
+        categoryInput.value = "";
+}
+    </script>
+</body>
+
+
+
+
