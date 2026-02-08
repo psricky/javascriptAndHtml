@@ -1,7 +1,12 @@
-const apiUrl = "https://ca71eec644027c2f56d1.free.beeceptor.com/api/users/";
+const apiUrl = "https://crudcrud.com/api/5807e77b52d34c3fa627314e95809e8e/todo/";
 
 window.addEventListener("DOMContentLoaded", getProducts);
 
+function resetForm (){
+    document.getElementById('price').value = '';
+    document.getElementById('product').value = '';
+    document.getElementById('category').value = 'Electronics';
+}
 // ADD PRODUCT
 async function addProduct() {
     try {
@@ -12,6 +17,7 @@ async function addProduct() {
         const obj = { price, product, category };
 
         const res = await axios.post(apiUrl, obj);
+        resetForm();
         showProductsOnScreen(res.data);
     } catch (err) {
         console.log(err);
@@ -59,15 +65,11 @@ async function getProducts() {
 // DELETE PRODUCT
 async function deleteProduct(id, category) {
     try {
-        await axios.delete(`${apiUrl}/${id}`);
+        await axios.delete(`${apiUrl}${id}`);
+        const userLists = document.querySelectorAll("ul");
+       userLists.forEach(ul => ul.innerHTML = "");
+       await getProducts();
 
-        let parent;
-        if (category === 'Electronics') parent = document.getElementById('electronics');
-        if (category === 'Food') parent = document.getElementById('food');
-        if (category === 'Skincare') parent = document.getElementById('skincare');
-
-        const child = document.getElementById(id);
-        parent.removeChild(child);
     } catch (err) {
         console.log(err);
     }
